@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // thay the duong dan mongo cua cac ban
-var urlDB = '';
+var urlDB = 'mongodb+srv://admin:admin@cluster0.sv5oc.mongodb.net/tinder?retryWrites=true&w=majority';
 const mongoose = require('mongoose');
 mongoose.connect(urlDB, {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -40,11 +40,33 @@ router.get('/', function (req, res, next) {
             if (error) {
                 res.render('index', {title: 'Express : Loi@@@@'})
             } else {
-
                 res.render('index', {title: 'Express', users: users})
             }
         })
 });
+
+
+router.get('/getUsers', function (req, res) {
+    var connectUsers = db.model('users', user);
+    var baseJson = {
+        errorCode: undefined,
+        errorMessage: undefined,
+        data: undefined
+    }
+    connectUsers.find({}, function (err, users) {
+        if (err) {
+            baseJson.errorCode = 403
+            baseJson.errorMessage = '403 Forbidden'
+            baseJson.data = []
+        } else {
+            baseJson.errorCode = 200
+            baseJson.errorMessage = 'OK'
+            baseJson.data = users
+        }
+        res.send(baseJson);
+    })
+
+})
 
 
 router.post('/insertUser', upload.single('avatar'), function (req, res) {
